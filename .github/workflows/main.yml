@@ -1,43 +1,23 @@
-name: main
+name: Deploy Docs
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  build:
+  deploy-gh-pages:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-      with:
-        ref: main
-        fetch-depth: 0
-        # https://stackoverflow.com/questions/62291270/github-actions-remote-rejected-master-master-shallow-update-not-allowed
-    - name: Deploy
-      run: |
-        set -x
-        git branch
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-        git config user.name "airdb-bot"
-        git config user.email "airdb-bot@airdb.com"
-        git config --local --unset-all "http.https://github.com/.extraheader"
-
-
-        domains=( "airdb.com" "airdb.net" "airdb.cloud" "airdb.shop" "airdb.vip" "airdb.pro" "airdb.me" "airdb.in" "airdb.app" )
-
-        for domain in ${domains[@]}; 
-        do echo $domain > CNAME
-          sed -i "s@airdb.com@$domain@" index.html
-
-          git commit -a -m "Auto Update by actions"
-
-          git remote -v
-          git remote add $domain https://${{ secrets.GithubBotToken }}@github.com/airdb-wiki/$domain
-          git remote -v
-
-          git push -u $domain main:gh-pages --force
-        done
-      env:
-        CI: true
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUBBOTTOKEN }}
+          force_orphan: true
+          cname: airdb.com
+          enable_jekyll: true
+          publish_branch: gh-pages
+          publish_dir: ./
+          publish_branch: gh-pages
