@@ -20,4 +20,3 @@ jobs:
           enable_jekyll: true
           publish_branch: gh-pages
           publish_dir: ./
-          publish_branch: gh-pages
